@@ -1,0 +1,204 @@
+package com.uhu.QLearning;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Random;
+
+import utils.Respuesta;
+
+/**
+ * CLASE QUE GUARDA LA INFORMACIÓN DEL ALGORITMO QLEARNING
+ */
+public class ModeloQ {
+	/**
+	 * Tabla Q: Valor para cada par Estado-Acción
+	 */
+	private ArrayList<Hashtable<EstadoTetris, double[]>> Q;
+
+	/**
+	 * Tasa de aprendizaje
+	 */
+	private double alpha = 0.1;
+
+	/**
+	 * Factor de descuento
+	 */
+	private double gamma = 0.8;
+
+	/**
+	 * Factor de la estrategia de selección de acción Epsilon Greedy
+	 */
+	private double epsilon = 1.0;
+
+	private Random random = new Random(System.currentTimeMillis());
+	private int cantEstados[];
+	private int cantAcciones[];
+	// TODO:
+	private int cantPiezas = 7;
+
+	public ModeloQ() {
+		Q = new ArrayList<Hashtable<EstadoTetris, double[]>>();
+		Q.add(new Hashtable<EstadoTetris, double[]>());
+		// TODO:
+		cantEstados = new int[7];
+		cantAcciones = new int[7];
+		cantAcciones[0] = 17;
+		cantAcciones[1] = 34;
+		cantAcciones[2] = 34;
+		cantAcciones[3] = 9;
+		cantAcciones[4] = 17;
+		cantAcciones[5] = 34;
+		cantAcciones[6] = 17;
+
+	}
+
+	public ModeloQ(String file) {
+		// TODO:
+		Q = new ArrayList<Hashtable<EstadoTetris, double[]>>();
+		cantEstados = new int[7];
+		cantAcciones = new int[7];
+		leerTablasQ(file);
+	}
+
+	public void addEstado(EstadoTetris estado, int pieza) {
+		if (!Q.get(pieza).containsKey(estado)) {
+			cantEstados[pieza]++;
+			double valores[] = new double[cantAcciones[pieza]];
+			for (int i = 0; i < valores.length; i++) {
+				valores[i] = random.nextDouble();
+			}
+			Q.get(pieza).put(estado, valores);
+		}
+	}
+
+	public double maxQenEstado(EstadoTetris s, int pieza) {
+		double QdeS[] = Q.get(pieza).get(s);
+		double max = QdeS[0];
+		for (int i = 0; i < QdeS.length; i++)
+			if (max < QdeS[i])
+				max = QdeS[i];
+		return max;
+	}
+
+	public int AccionMaxQenEstado(EstadoTetris s, int pieza) {
+		double QdeS[] = Q.get(pieza).get(s);
+		double max = QdeS[0];
+		int accionMaxQ = 0;
+		for (int i = 0; i < QdeS.length; i++)
+			if (max < QdeS[i]) {
+				accionMaxQ = i;
+				max = QdeS[i];
+			}
+		return accionMaxQ;
+	}
+
+	public void actualizarQ(EstadoTetris s, int a, EstadoTetris sP, double r, int piezaAnt, int pieza) {
+		double oldQ = Q.get(piezaAnt).get(s)[a];
+		double maxQ = maxQenEstado(sP, pieza);
+		double newQ = oldQ + alpha * (r + gamma * maxQ - oldQ);
+		Q.get(piezaAnt).get(s)[a] = newQ;
+	}
+
+	public int seleccionarAccionEpsilonGreedy(EstadoTetris estado, int pieza) {
+		// TODO:
+		if (random.nextDouble() < 1 - epsilon)
+			return AccionMaxQenEstado(estado, pieza);
+		else
+			return random.nextInt(cantAcciones[pieza]);
+	}
+
+	public void escribirTablaQ() {
+		try {
+			System.out.println("Se van a escribir las TablasQ...");
+			for (int i = 0; i < cantPiezas; i++) {
+				FileOutputStream saveFile;
+				saveFile = new FileOutputStream("TablasQ/TablaQ_" + i + ".dat");
+				ObjectOutputStream out = new ObjectOutputStream(saveFile);
+				out.writeObject(this.Q.get(i));
+				out.close();
+				cantEstados[i] = Q.get(i).size();
+				cantAcciones[i] = Q.get(i).elements().nextElement().length;
+				System.out.println("TablaQ de la pieza " + i + ":");
+				System.out.println("Cantidad de estados: " + cantEstados[i]);
+				System.out.println("Cantidad de acciones: " + cantAcciones[i]);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// TODO:
+		escribirListaAcciones();
+	}
+
+	@SuppressWarnings("unchecked")
+	public void leerTablasQ(String file) {
+		try {
+			System.out.println("Se van a leer las TablasQ...");
+			for (int i = 0; i < cantPiezas; i++) {
+				FileInputStream savedFile = new FileInputStream(file + i + ".dat");
+				ObjectInputStream in = new ObjectInputStream(savedFile);
+				this.Q.add(i, (Hashtable<EstadoTetris, double[]>) in.readObject());
+				in.close();
+				cantEstados[i] = Q.get(i).size();
+				cantAcciones[i] = Q.get(i).elements().nextElement().length;
+				System.out.println("TablaQ de la pieza " + i + ":");
+				System.out.println("Cantidad de estados: " + cantEstados[i]);
+				System.out.println("Cantidad de acciones: " + cantAcciones[i]);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void escribirListaAcciones() {
+		// TODO:
+		ArrayList<Hashtable<EstadoTetris, Respuesta>> LA = new ArrayList<>();
+		for (int i = 0; i < cantPiezas; i++) {
+			LA.add(new Hashtable<>());
+			Enumeration<EstadoTetris> e = Q.get(i).keys();
+			EstadoTetris estado;
+			while (e.hasMoreElements()) {
+				estado = e.nextElement();
+				Respuesta r = Accion.convertir(AccionMaxQenEstado(estado, i), i);
+				LA.get(i).put(estado, r);
+			}
+		}
+		try {
+			System.out.println("Se van a escribir las Listas de Acciones...");
+			for (int i = 0; i < cantPiezas; i++) {
+				FileOutputStream saveFile;
+				saveFile = new FileOutputStream("ListaDeAcciones/LA.dat");
+				ObjectOutputStream out = new ObjectOutputStream(saveFile);
+				out.writeObject(LA);
+				out.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public double getEpsilon() {
+		return epsilon;
+	}
+
+	public void setEpsilon(double epsilon) {
+		this.epsilon = epsilon;
+	}
+
+	
+
+}

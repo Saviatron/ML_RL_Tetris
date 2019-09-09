@@ -1,0 +1,118 @@
+package com.uhu.jugadores;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+import com.uhu.QLearning.Accion;
+import com.uhu.QLearning.EstadoTetris;
+import com.uhu.QLearning.ModeloQ;
+import com.uhu.utils.Respuesta;
+import com.uhu.utils.Transicion;
+
+public class AprendizQ extends Jugador {
+
+	int repeticiones;
+	ModeloQ modeloQ = new ModeloQ();
+	protected List<Transicion> historial = new ArrayList<>();
+	
+	EstadoTetris s=null;
+	EstadoTetris sP=null;
+	int a;
+
+	public AprendizQ(int repeticiones) {
+		super("usuario uhu", "nombre del jugador");
+		this.repeticiones = repeticiones;
+	}
+
+	@Override
+	public void inicializar() {
+		s=null;
+		sP=null;
+		historial = new ArrayList<>();
+		// TODO Aqui lo que querais antes de que empiecen a caer fichas
+		super.arrancar();
+	}
+
+	@Override
+	public Respuesta pensar(String percepcion) {
+
+		// System.out.println(percepcion);
+
+		StringTokenizer st = new StringTokenizer(percepcion, ";");
+		String orden = st.nextToken().trim().toUpperCase();
+
+		if (orden.equalsIgnoreCase("FIN")) {
+			System.out.println(percepcion);
+			st.nextToken();
+			st.nextToken();
+			System.out.println("Se acabó...");
+			repeticiones--;
+			for (int i = 0; i < historial.size(); i++) 
+				modeloQ.actualizarQ(historial.get(i).s, historial.get(i).a, historial.get(i).sP, Integer.parseInt(st.nextToken())-1000.0);
+			if (repeticiones > 0)
+				inicializar(); // <-- este es el metodo de arrancar la partida
+			// System.exit(1);
+
+		} else if (orden.equalsIgnoreCase("MOV")) {
+			if(s==null){
+				s = parsearEstado(percepcion);
+				modeloQ.addEstado(s);
+				a=modeloQ.seleccionarAccionEpsilonGreedy(s);
+				return Accion.convertir(a);
+			}else{
+				sP = parsearEstado(percepcion);
+				modeloQ.addEstado(sP);
+				historial.add(new Transicion(s, a, sP, 0.0));
+				modeloQ.actualizarQ(s, a, sP, 4-sP.getSumAlturas());
+				s=sP;
+				a=modeloQ.seleccionarAccionEpsilonGreedy(s);
+				return Accion.convertir(a);
+			}
+		} else {
+			System.out.println("No entiendo el mensaje");
+			System.out.println(percepcion);
+			return new Respuesta(0, 0);
+		}
+		return null;
+	}
+
+	public EstadoTetris parsearEstado(String percepcion) {
+
+		System.out.println(percepcion);
+		StringTokenizer st = new StringTokenizer(percepcion, ";");
+		st.nextToken();
+
+		int pieza = Integer.parseInt(st.nextToken());
+		System.out.println("Pieza Actual: " + pieza);
+		System.out.println("Pieza Siguiente: " + st.nextToken());
+
+		String Mapa = st.nextToken();
+		// System.out.println(Mapa);
+		/*int tablero[][] = new int[22][10];
+		for (int i = 0; i < 22; i++) {
+			// System.out.println(Mapa.substring(i*24+1, i*24+24));
+			for (int j = 0; j < 10; j++) {
+				tablero[i][9 - j] = (Character.getNumericValue(Mapa.charAt(i + (j + 1) * 24)) == 0) ? 0 : 1;
+				System.out.print(tablero[i][9 - j]);
+			}
+			System.out.println();
+		}*/
+		int alturas[] = new int[10];
+		for (int i = 0; i < 22; i++) {
+			for (int j = 0; j < 10; j++) {
+				if (Character.getNumericValue(Mapa.charAt((21 - i) + (j + 1) * 24)) != 0)
+					alturas[j] = i + 1;
+			}
+		}
+		int sumAlturas = 0;
+		int bumpiness = 0;
+		for (int i = 0; i < alturas.length - 1; i++) {
+			sumAlturas += alturas[i];
+			bumpiness += Math.abs(alturas[i] - alturas[i + 1]);
+		}
+		sumAlturas += alturas[alturas.length - 1];
+		return new EstadoTetris(sumAlturas, bumpiness, pieza);
+	}
+
+}

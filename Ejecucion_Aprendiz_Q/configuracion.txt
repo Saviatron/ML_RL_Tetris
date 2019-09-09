@@ -1,0 +1,13 @@
+### Fichero de configuracion
+#
+
+# La velocidad son milisegundos entre movimientos
+# mas valor -> mas lento
+
+velocidad = 40
+
+# código de fichas con las que jugar
+# si se comenta se juega con todas
+
+#fichas = 0
+

@@ -1,0 +1,15 @@
+package app;
+
+import jugadores.*;
+
+public class App {
+
+	public static void main(String args[]) {
+		// Jug_Teclado jugador = new Jug_Teclado(); /*** JUGADOR DE TECLADO ***/
+		// Aleatorio jugador = new Aleatorio(); /*** JUGADOR Aleatorio ***/
+		// AprendizQ jugador = new AprendizQ(500); /*** JUGADOR Aprendiz ***/
+		JugadorQ jugador = new JugadorQ(50); /*** JUGADOR Q ***/
+		jugador.inicializar();
+		jugador.jugar();
+	}
+}

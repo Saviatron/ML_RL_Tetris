@@ -1,0 +1,2 @@
+INDEX VERSION 1.127+C:\Users\JAVIER\Desktop\Aprendizaje Automático\2- Práctica\P8_Tetris\.metadata\.plugins\org.eclipse.jdt.core
+862679077.index

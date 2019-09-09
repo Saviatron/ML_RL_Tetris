@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;TablaQ_buena_noche_lunes.dat&apos; to &apos;Tetris_01_alumnos_Cuadrado&apos;&#x0D;&#x0A;- Original project: &apos;Tetris_01_alumnos_Cuadrado&apos;&#x0D;&#x0A;- Destination element: &apos;Tetris_01_alumnos_Cuadrado&apos;&#x0D;&#x0A;- Original element: &apos;TablaQ_buena_noche_lunes.dat&apos;" description="Copy file" destination="=Tetris_01_alumnos_Cuadrado" element1="PiezaCuadrada/TablaQ_buena_noche_lunes.dat" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1547551121160" units="0" version="1.0"/>
+</session>
