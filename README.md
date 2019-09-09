@@ -12,4 +12,4 @@ Machine Learning. Reinforcement Learning. Q-Learning aplicado al juego Tetris
 
 ## Vídeo Explicativo
 
-[![very good|512x397](http://img.youtube.com/vi/z4OomBu6kD0/1.jpg)](http://www.youtube.com/watch?v=z4OomBu6kD0 "Youtube")
+[![](http://img.youtube.com/vi/z4OomBu6kD0/hqdefault.jpg)](http://www.youtube.com/watch?v=z4OomBu6kD0 "Youtube")
